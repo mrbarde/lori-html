@@ -1,18 +1,6 @@
 const webpack = require('webpack');
-const Clicks = require('./clicks');
+const loriConfig = require('./lori.config');
 const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
-const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
-
-/**
- * We will start by initializing clicks
- * this is where our config settings are
- */
-Clicks.init();
-
-/**
- * Entry file
- */
-module.exports.entry = './src/app.jsx';
 
 /**
  * Now the output file and path
@@ -20,7 +8,7 @@ module.exports.entry = './src/app.jsx';
  * to at compilation time
  */
 module.exports.output = {
-	path: Clicks.PUBLIC_DIR+'/js',
+	path: loriConfig.publicDir+'/js',
 	filename: 'app.js',
 	publicPath: 'public/'
 };
@@ -41,11 +29,11 @@ module.exports.watch = true;
  * aliaes we want to resolve.
  */
 module.exports.resolve.alias = {
-	env: (Clicks.isProduction) 
-		? Clicks.DEV_DIR+ '/environments/production.environment.js' 
-		: Clicks.DEV_DIR+ '/environments/development.environment.js',
-	AppConfigs:  Clicks.DEV_DIR+'/configs/app.config.js',
-	RoutesConfig:  Clicks.DEV_DIR+'/configs/routes.config.js'
+	env: (loriConfig.isProduction) 
+		? loriConfig.devDir+ '/environments/production.environment.js' 
+		: loriConfig.devDir+ '/environments/development.environment.js',
+	AppConfigs:  loriConfig.devDir+'/configs/app.config.js',
+	RoutesConfig:  loriConfig.devDir+'/configs/routes.config.js'
 };
 
 /**
@@ -58,13 +46,12 @@ module.exports.module = {
 	rules: [
 		{
 			test: /\.jsx?$/,
-			include: Clicks.DEV_DIR,
-			loader: 'babel-loader'
+			loader: 'babel-loader',
+			include: loriConfig.devDir
 		},
 		{
 			test: /\.less$/,
-			include: Clicks.DEV_DIR,
-			use: Clicks.EXTRACTLESS.extract({
+			use: loriConfig.extractLess.extract({
 				fallback: 'style-loader',
 				use: [
 					{
@@ -77,12 +64,12 @@ module.exports.module = {
 						'loader': 'less-loader'
 					}
 				]
-			})
+			}),
+			include: loriConfig.devDir
 		},
 		{
 			test: /\.s?css$/,
-			include: Clicks.DEV_DIR,
-			use: Clicks.EXTRACTSASS.extract({
+			use: loriConfig.extractScss.extract({
 				fallback: 'style-loader',
 				use: [
 					{
@@ -95,29 +82,18 @@ module.exports.module = {
 						loader: 'sass-loader'
 					}
 				]
-			})
+			}),
+			include: loriConfig.devDir
 		},
 		{ 
 			test: /\.jpe?g$|\.gif$|\.png$|\.svg$/, 
-			include: Clicks.DEV_DIR,
-			use:{
-				loader: 'file-loader',
-				options:{
-					name: 'images/[sha512:hash:base64:7].[ext]',
-					outputPath: '../'
-				}
-			}
+			loader: 'file-loader?name=images/[sha512:hash:base64:7].[ext]?[hash]&outputPath=../',
+			include: loriConfig.devDir
 		},
 		{ 
-			test: /\.(woff2?|ttf|eot|otf)$/,
-			include: Clicks.DEV_DIR,
-			use:{
-				loader: 'file-loader',
-				options:{
-					name: 'fonts/[name].[ext]',
-					outputPath: '../'
-				}
-			}
+			test: /\.(woff2?|ttf|eot|otf)$/, 
+			loader: 'file-loader?name=fonts/[name].[ext]?[hash]&outputPath=../',
+			include: loriConfig.devDir
 		}
 	]
 };
@@ -128,23 +104,13 @@ module.exports.module = {
  * more plugins as the environment may require
  */
 module.exports.plugins = [
-	Clicks.EXTRACTLESS,
-	Clicks.EXTRACTSASS,
-	new FriendlyErrorsWebpackPlugin(),
-	new BrowserSyncPlugin({
-		port: Clicks.serverPort,
-		host: 'localhost',
-		server: {
-			baseDir: ['public']
-		},
-		files: ['public/index.html', 'public/js/*'],
-		logLevel: 'silent',
-		open: true
-	})
+	loriConfig.extractLess,
+	loriConfig.extractScss,
+	new FriendlyErrorsWebpackPlugin()
 ];
 
 // if in production
-if(Clicks.isProduction){
+if(loriConfig.isProduction){
 	// concat extra plugins to webpack config
 	module.exports.plugins = (module.exports.plugins || []).concat([
 		new webpack.DefinePlugin({
@@ -153,7 +119,6 @@ if(Clicks.isProduction){
 			}
 		}),
 		new webpack.optimize.UglifyJsPlugin({
-			sourceMap: false,
 			compressor: {
 				warnings: false
 			},
@@ -164,12 +129,9 @@ if(Clicks.isProduction){
 }
 
 /**
- * things to do in development environment
+ * set devtool
  */
-if(!Clicks.isProduction){
-	// use source-maps as devtool
-	module.exports.devtool = (Clicks.isProduction) ? 'cheap-module-source-map' : 'source-map';
-}
+module.exports.devtool = loriConfig.isProduction ? 'cheap-module-source-map' : 'source-map';
 
 /*
  *******************************

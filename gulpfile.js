@@ -1,17 +1,15 @@
-const gulp = require('gulp');
-const sass = require('gulp-ruby-sass');
-const autoprefixer = require('gulp-autoprefixer');
-const cssnano = require('gulp-cssnano');
-const rename = require('gulp-rename');
-const webpack = require("webpack");
-const webpackStream = require("webpack-stream");
-const plumber = require('gulp-plumber');
-
+var path = require('path');
+var gulp = require('gulp');
+var {SyncServer, 
+    WebpackTask, 
+    SassTask} = require('lori-scripts');
+var loriConfig = require('./lori.config');
 
 /**
  * ****************************************
  * Watch list
  * ****************************************
+ * watch lists for all files sass 
  */
 var watchlist = {
     sass: [
@@ -27,10 +25,12 @@ var watchlist = {
  * ****************************************
  */
 gulp.task('webpack', function(){
-    return gulp.src('./src/app.jsx')
-               .pipe(plumber())
-               .pipe(webpackStream(require('./webpack.config.js'), webpack))
-               .pipe(gulp.dest('public/js'));
+    let task = new WebpackTask({
+        source: path.resolve(__dirname, 'src/app.jsx'),
+        config: require('./webpack.config.js'),
+        destination: path.join(__dirname, 'public/js')
+    });
+    task();
 });
 
 /**
@@ -39,18 +39,54 @@ gulp.task('webpack', function(){
  * ****************************************
  */
 gulp.task("sass", function(){
-         return sass('./src/styles/style.scss', { style: 'expanded', sourcemap:true })
-        .pipe(plumber())
-	    .pipe(autoprefixer())
-	    .pipe(cssnano())
-	    .pipe(rename('app.css'))
-        .pipe(gulp.dest('./public/css'));
+    let task = new SassTask({
+        source: path.resolve(__dirname, 'src/styles/style.scss'),
+        options: { style: 'expanded', sourcemap:true },
+        file: 'app.css',
+        destination: path.join(__dirname, 'public/css')
+    });
+    task();
 });
+
+/**
+ * ****************************************
+ * Server Task
+ * ****************************************
+ */
+gulp.task('serve', function(){
+    syncServer();
+    watch();
+});
+
+/**
+ * ****************************************
+ * Sync Server
+ * ****************************************
+ * BrowserSync proxies our php server and
+ * starts a seperate server that syncs to
+ * our breowser.
+ */
+const syncServer = function() {
+    var syncServe = new SyncServer({
+        host: 'localhost',
+        port: loriConfig.syncPort,
+        logLevel: 'silent',
+		server: {
+			baseDir: [loriConfig.publicDir]
+		}
+    },[
+        path.join(__dirname, 'public/js/*'),
+        path.join(__dirname, 'public/css/*')
+    ]);
+    syncServe.start();
+};
 
 /**
  * ****************************************
  * Watch
  * ****************************************
+ * Watch for changes on sass files defined
+ * in the sass watchlist
  */
 const watch = function(){
     // watch for changes in sass
@@ -61,8 +97,9 @@ const watch = function(){
  * ****************************************
  * Start
  * ****************************************
+ * starts gulp task
  */
-gulp.task('start', ['sass', 'webpack']);
+gulp.task('start', ['sass', 'webpack', 'serve']);
 
 /**
  * ****************************************
@@ -77,7 +114,3 @@ gulp.task('default', function(){
 	console.log('2. gulp sass');
 	console.log(' ');
 });
-
-var errorHandler = (err) => {
-    console.log(err);
-}
