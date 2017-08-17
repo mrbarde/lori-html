@@ -9,7 +9,5 @@
 /__tests__/*
 
 #### remove these lines
-/public/js/*
-/public/css/*
-/public/images/*
-/public/fonts/*
+/public/assets/*
+/public/assets/**

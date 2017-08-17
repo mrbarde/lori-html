@@ -8,9 +8,9 @@ const FriendlyErrorsWebpackPlugin = require('friendly-errors-webpack-plugin');
  * to at compilation time
  */
 module.exports.output = {
-	path: loriConfig.publicDir+'/js',
+	path: loriConfig.publicDir+'/assets',
 	filename: 'app.js',
-	publicPath: 'public/'
+	publicPath: 'assets/'
 };
 
 /**
@@ -86,13 +86,27 @@ module.exports.module = {
 			include: loriConfig.devDir
 		},
 		{ 
-			test: /\.jpe?g$|\.gif$|\.png$|\.svg$/, 
-			loader: 'file-loader?name=images/[sha512:hash:base64:7].[ext]?[hash]&outputPath=../',
+			test: /\.jpe?g$|\.gif$|\.png$|\.svg$/,
+			use: {
+				loader: 'file-loader',
+				options: {
+					name: 'images/[sha512:hash:base64:7].[ext]',
+					outputPath: '',
+					publicPath: '/assets/'
+				}
+			},
 			include: loriConfig.devDir
 		},
 		{ 
-			test: /\.(woff2?|ttf|eot|otf)$/, 
-			loader: 'file-loader?name=fonts/[name].[ext]?[hash]&outputPath=../',
+			test: /\.(woff2?|ttf|eot|otf)$/,
+			use:{
+				loader: 'file-loader',
+				options:{
+					name: 'fonts/[name].[ext]',
+					outputPath: '',
+					publicPath: '/assets/'
+				}
+			},
 			include: loriConfig.devDir
 		}
 	]

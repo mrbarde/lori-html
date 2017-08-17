@@ -28,7 +28,7 @@ gulp.task('webpack', function(){
     let task = new WebpackTask({
         source: path.resolve(__dirname, 'src/app.jsx'),
         config: require('./webpack.config.js'),
-        destination: path.join(__dirname, 'public/js')
+        destination: path.join(__dirname, 'public/assets')
     });
     task();
 });
@@ -43,7 +43,7 @@ gulp.task("sass", function(){
         source: path.resolve(__dirname, 'src/styles/style.scss'),
         options: { style: 'expanded', sourcemap:true },
         file: 'app.css',
-        destination: path.join(__dirname, 'public/css')
+        destination: path.join(__dirname, 'public/assets/css')
     });
     task();
 });
