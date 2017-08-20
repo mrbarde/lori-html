@@ -5,7 +5,8 @@
  */
 
 /**
- * Routes objects is a key value pair
+ * Routes object is a key value pair
+ * containing possible routes
  */
 
 module.exports = {

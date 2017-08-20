@@ -28,7 +28,8 @@ gulp.task('webpack', function(){
     let task = new WebpackTask({
         source: path.resolve(__dirname, 'src/app.jsx'),
         config: require('./webpack.config.js'),
-        destination: path.join(__dirname, 'public/assets')
+        destination: path.join(__dirname, 'public/assets'),
+        callback: serve
     });
     task();
 });
@@ -53,10 +54,10 @@ gulp.task("sass", function(){
  * Server Task
  * ****************************************
  */
-gulp.task('serve', function(){
+var serve = function(){
     syncServer();
     watch();
-});
+};
 
 /**
  * ****************************************
@@ -75,8 +76,8 @@ const syncServer = function() {
 			baseDir: [loriConfig.publicDir]
 		}
     },[
-        path.join(__dirname, 'public/js/*'),
-        path.join(__dirname, 'public/css/*')
+        path.join(loriConfig.publicDir, 'public/assets/js/*'),
+        path.join(loriConfig.publicDir, 'public/assets/css/*')
     ]);
     syncServe.start();
 };
@@ -99,7 +100,7 @@ const watch = function(){
  * ****************************************
  * starts gulp task
  */
-gulp.task('start', ['sass', 'webpack', 'serve']);
+gulp.task('start', ['sass', 'webpack']);
 
 /**
  * ****************************************

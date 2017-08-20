@@ -28,6 +28,4 @@ html, body{
     height: 100%;
     overflow-y: auto;
     background: $primary;
-    background: -wbekit-linear-gradient(top left, $primary, darken($primary, 15%));
-    background: linear-gradient(to top left, $primary, darken($primary, 15%));
 }
