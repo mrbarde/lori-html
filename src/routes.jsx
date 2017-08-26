@@ -1,14 +1,18 @@
 import React from 'react';
 import {
     Route, 
-    Switch
+    Switch,
+    withRouter
 } from 'react-router-dom';
-import Splash from './modules/lori/components/splash.jsx';
+import {Splash} from 'lori-bites';
+
+// wrapper splash around with router
+const Home = withRouter(Splash);
 
 const App = () => {
     return(
         <Switch>
-            <Route exact component={Splash}/>
+            <Route exact component={Home}/>
         </Switch>
     );
 };
